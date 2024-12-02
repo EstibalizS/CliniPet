@@ -1,36 +1,39 @@
-document.getElementById("formActualizarCliente").addEventListener("submit", async function(event) {
+
+document.getElementById('formActualizarCliente').addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    // Obtén los valores del formulario
-    const cedula = document.getElementById("cedula").value;
-    const telefono = document.getElementById("telefono").value;
-    const email = document.getElementById("email").value;
-    const direccion = document.getElementById("direccion").value;
+    const cedula = document.getElementById('cedula').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const direccion = document.getElementById('direccion').value.trim();
+    const resultContainer = document.getElementById('resultContainer');
 
-    // Validar que los campos no estén vacíos
+    // Limpiar mensajes previos
+    resultContainer.style.display = "none";
+    resultContainer.innerHTML = "";
+
+    // Validar campos requeridos
     if (!cedula || !telefono || !email || !direccion) {
-        document.getElementById("message").innerHTML = "Todos los campos son obligatorios.";
+        resultContainer.style.display = "block";
+        resultContainer.innerHTML = `<p class="error">Por favor complete todos los campos.</p>`;
         return;
     }
 
     try {
-        // Llamar a la API para actualizar el cliente
-        const response = await fetch(`https://tuservidor/api/actualizarcliente/actualizar?cedula=${cedula}&telefono=${telefono}&email=${email}&direccion=${direccion}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
+        const url = `http://localhost:7049/api/ActualizarCliente/actualizar?cedula=${encodeURIComponent(cedula)}&telefono=${encodeURIComponent(telefono)}&email=${encodeURIComponent(email)}&direccion=${encodeURIComponent(direccion)}`;
 
+        const response = await fetch(url, { method: 'PUT' });
         const result = await response.json();
 
         if (response.ok) {
-            document.getElementById("message").innerHTML = `<span style="color: green;">${result.message}</span>`;
+            resultContainer.style.display = "block";
+            resultContainer.innerHTML = `<p class="success">${result.message || "Cliente actualizado exitosamente."}</p>`;
         } else {
-            document.getElementById("message").innerHTML = `<span style="color: red;">${result.error}</span>`;
+            resultContainer.style.display = "block";
+            resultContainer.innerHTML = `<p class="error">${result.error || "Error al actualizar el cliente."}</p>`;
         }
     } catch (error) {
-        console.error(error);
-        document.getElementById("message").innerHTML = "Hubo un error al intentar actualizar la información. Intenta nuevamente.";
+        resultContainer.style.display = "block";
+        resultContainer.innerHTML = `<p class="error">Error de conexión: ${error.message}</p>`;
     }
 });
