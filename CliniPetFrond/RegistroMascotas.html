@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Mascota</title>
+    <link rel="icon" type="image/png" href="imagenes/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .card {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            padding: 2rem;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        h1 {
+            font-size: 1.25rem;
+            text-align: center; /* Centra el título */
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Registrar Mascota</h1>
+            <form id="formRegistrarMascota" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="nombreMascota" class="form-label">Nombre de la Mascota</label>
+                    <input type="text" class="form-control" id="nombreMascota" placeholder="Ingrese el nombre de la mascota" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cedulaCliente" class="form-label">Cédula del Cliente</label>
+                    <input type="text" class="form-control" id="cedulaCliente" placeholder="Ingrese la cédula del cliente" required>
+                </div>
+                <div class="mb-3">
+                    <label for="especie" class="form-label">Especie</label>
+                    <select class="form-select" id="especie" required>
+                        <option value="">Seleccione una especie</option>
+                        <option value="perro">Perro</option>
+                        <option value="gato">Gato</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="raza" class="form-label">Raza</label>
+                    <select class="form-select" id="raza" required>
+                        <option value="">Seleccione una raza</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="idRaza" class="form-label">ID de la Raza</label>
+                    <input type="text" class="form-control" id="idRaza" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="peso" class="form-label">Peso (kg)</label>
+                    <input type="number" class="form-control" id="peso" placeholder="Ingrese el peso" min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label for="edad" class="form-label">Edad</label>
+                    <input type="text" class="form-control" id="edad" placeholder="Ingrese la edad" required>
+                </div>
+                <div class="mb-3">
+                    <label for="genero" class="form-label">Género</label>
+                    <select class="form-select" id="genero" required>
+                        <option value="">Seleccione un género</option>
+                        < option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Foto de la Mascota</label>
+                    <input type="file" class="form-control" id="foto" accept="image/*" required>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
+            </form>
+
+            <div id="resultContainer" class="result" style="display: none;">
+                <h5>Resultados:</h5>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const razas = [
+                // Razas de perros (1-40)
+                'Labrador Retriever', 'Golden Retriever', 'Bulldog', 'Beagle', 
+                'Poodle', 'Rottweiler', 'German Shepherd', 'Dachshund', 
+                'Chihuahua', 'Boxer', 'Doberman Pinscher', 'Schnauzer', 
+                'Yorkshire Terrier', 'Shih Tzu', 'Cocker Spaniel', 'Pug', 
+                'Basset Hound', 'Maltese', 'French Bulldog', 'Collie', 
+                'Chow Chow', 'Airedale Terrier', 'Bernese Mountain Dog', 
+                'Great Dane', 'Australian Shepherd', 'Border Collie', 
+                'Cavalier King Charles Spaniel', 'Husky Siberiano', 
+                'Saint Bernard', 'Pit Bull Terrier', 'Italian Greyhound', 
+                'Bull Terrier', 'Akita', 'Shiba Inu', 'Cairn Terrier', 
+                'Basenji', 'Cocker Spaniel Inglés', 'Weimaraner', 
+                'Irish Wolfhound', 'Jack Russell Terrier', 'Newfoundland', 
+                'Samoyed', 'Australian Cattle Dog', 'American Staffordshire Terrier', 
+                'Tibetan Mastiff', 'Criollo',
+                // Razas de gatos (41-84)
+                'Siamés', 'Persa', 'Maine Coon', 'Ragdoll', 
+                'Bengal', 'British Shorthair', 'Sphynx', 'Abyssinian', 
+                'Birmano', 'Exótico de Pelo Corto', 'Oriental', 
+                'Scottish Fold', 'Burmese', 'Norwegian Forest', 
+                'Russian Blue', 'American Shorthair', 'Savannah', 
+                'Himalayo', 'Chartreux', 'Manx', 'Devon Rex', 
+                'Cornish Rex', 'Turkish Van', 'Singapura', 
+                'Tonkinese', 'Egyptian Mau', 'Munchkin', 
+                'British Longhair', 'Japanese Bobtail', 'LaPerm', 
+                'Turkish Angora', 'Bombay', 'Somali', 
+                'Oriental Longhair', 'Balinese', 'Cymric', 
+                'Korat', 'American Curl'
+            ];
+
+            $('#especie').change(function() {
+                const especieSeleccionada = $(this).val();
+                $('#raza').empty().append('<option value="">Seleccione una raza</option>');
+
+                if (especieSeleccionada) {
+                    razas.forEach((raza, index) => {
+                        if ((especieSeleccionada === 'perro' && index < 40) || 
+                            (especieSeleccionada === 'gato' && index >= 40)) {
+                            $('#raza').append(`<option value="${index + 1}">${raza}</option>`);
+                        }
+                    });
+                }
+            });
+
+            $('#raza').change(function() {
+                const idRazaSeleccionada = $(this).val();
+                $('#idRaza').val(idRazaSeleccionada);
+            });
+
+            $('#formRegistrarMascota').on('submit', function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                const url = '/api/RegistrarMascota/registrar';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#resultContent').html(`<p>${response.mensaje}</p>`);
+                        $('#resultContainer').show();
+                    },
+                    error: function(xhr) {
+                        const errorResponse = xhr.responseJSON;
+                        $('#resultContent').html(`<p>Error: ${errorResponse.error}</ p>`);
+                        $('#resultContainer').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

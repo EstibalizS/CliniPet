@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Compra o Servicio</title>
+    <link rel="icon" type="image/png" href="imagenes/logo.png">
+    <link rel="icon" type="image/png" href="imagenes/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Registrar Compra o Servicio</h1>
+        <form id="formRegistro">
+            <div class="mb-3">
+                <label for="tipo" class="form-label">Seleccione una opción</label>
+                <select id="tipo" class="form-select" required>
+                    <option value="">Seleccione...</option>
+                    <option value="producto">Comprar Producto</option>
+                    <option value="servicio">Solicitar Servicio</option>
+                </select>
+            </div>
+            <div class="mb-3" id="opcionesContainer" style="display: none;">
+                <label for="opciones" class="form-label">Seleccione un Producto o Servicio</label>
+                <select id="opciones" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" class="form-control" id="cantidad" placeholder="Ingrese la cantidad" required min="1">
+            </div>
+            <div class="mb-3">
+                <label for="precioUnitario" class="form-label">Precio Unitario</label>
+                <input type="text" class="form-control" id="precioUnitario" placeholder="Precio unitario" readonly>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+        </form>
+
+        <div id="resultContainer" class="result" style="display: none;">
+            <h5>Resultados:</h5>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const productos = [
+                { id: 1, nombre: "Alimento para Perros (15kg)", precio: 65.00 },
+                { id: 2, nombre: "Alimento para Gatos (10kg)", precio: 50.00 },
+                { id: 3, nombre: "Juguete para Perro", precio: 15.00 },
+                { id: 4, nombre: "Juguete para Gato", precio: 12.00 },
+                { id: 5, nombre: "Collar para Perro", precio: 25.00 },
+                { id: 6, nombre: "Arnés para Gato", precio: 20.00 },
+                { id: 7, nombre: "Cama para Perro", precio: 80.00 },
+                { id: 8, nombre: "Cama para Gato", precio: 70.00 },
+                { id: 9, nombre: "Baño para Perro", precio: 30.00 },
+                { id: 10, nombre: "Baño para Gato", precio: 25.00 }
+            ];
+
+            const servicios = [
+                { id: 1, nombre: "Consulta Veterinaria General", precio: 30.00 },
+                { id: 2, nombre: "Consulta Especializada", precio: 50.00 },
+                { id: 3, nombre: "Vacunación", precio: 20.00 },
+                { id: 4, nombre: "Desparasitaciones", precio: 15.00 },
+                { id: 5, nombre: "Baño y Corte de Pelo", precio: 40.00 },
+                { id: 6, nombre: "Paseo de Mascotas", precio: 25.00 },
+                { id: 7, nombre: "Entrenamiento Básico", precio: 60.00 },
+                { id: 8, nombre: "Consulta de Nutrición", precio: 35.00 },
+                { id: 9, nombre: "Chequeo de Salud", precio: 45.00 },
+                { id: 10, nombre: "Cuidado de Mascotas a Domicilio", precio: 50.00 }
+            ];
+
+            $('#tipo').change(function() {
+                const tipoSeleccionado = $(this).val();
+                $('#opcionesContainer').show();
+                $('#opciones').empty();
+
+                if (tipoSeleccionado === 'producto') {
+                    productos.forEach(producto => {
+                        $('#opciones').append(`<option value="${producto.id}">${producto.nombre} - Precio: $${producto.precio}</option>`);
+                    });
+                } else if (tipoSeleccionado === 'servicio') {
+                    servicios.forEach(servicio => {
+                        $('#opciones').append(`<option value="${servicio.id}">${servicio.nombre} - Precio: $${servicio.precio}</option>`);
+                    });
+                }
+            });
+
+            $('#opciones').change(function() {
+                const tipoSeleccionado = $('#tipo').val();
+                const idSeleccionado = $(this).val();
+                let precioUnitario = 0;
+
+                if (tipoSeleccionado === 'producto') {
+                    const productoSeleccionado = productos.find(producto => producto.id == idSeleccionado);
+                    precioUnitario = productoSeleccionado ? productoSeleccionado.precio : 0;
+                } else if (tipoSeleccionado === 'servicio') {
+                    const servicioSeleccionado = servicios.find(servicio => servicio.id == idSeleccionado);
+                    precioUnitario = servicioSeleccionado ? servicioSeleccionado.precio : 0;
+                }
+
+                $('#precioUnitario').val(precioUnitario.toFixed(2));
+            });
+
+            $('#formRegistro').on('submit', function(event) {
+                event.preventDefault();
+
+                const idSeleccionado = $('#opciones').val();
+                const cantidad = $('#cantidad').val();
+                const tipoSeleccionado = $('#tipo').val();
+                const idFactura = Math.floor(Math.random() * 10000); // Generar ID de factura aleatorio
+                const precioUnitario = parseFloat($('#precioUnitario').val());
+                const total = precioUnitario * cantidad;
+
+                const requestData = {
+                    IDITEM: parseInt(idSeleccionado),
+                    Cantidad: parseInt(cantidad),
+                    IDFactura: idFactura // Aquí puedes manejar el ID de la factura como desees
+                };
+
+                const url = tipoSeleccionado === 'producto' ? '/api/comprarProducto/comprar' : '/api/registrarServicioMascota/registrar';
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http//192.168.127.9',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        window.location.href = `factura.html?facturaId=${idFactura}&tipo=${tipoSeleccionado}&productoServicioId=${idSeleccionado}&cantidad=${cantidad}&precioUnitario=${precioUnitario.toFixed(2)}&total=${total.toFixed(2)}&mensaje=${encodeURIComponent(response.mensaje)}`;
+                    },
+                    error: function(xhr) {
+                        $('#resultContent').html(`Error: ${xhr.responseJSON.error}`);
+                        $('#resultContainer').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
